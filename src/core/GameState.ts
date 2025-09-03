@@ -1,9 +1,8 @@
 // core/GameState.ts
 //import { Phase, Player, Card, Effect } from '../types';
 import {type Player} from '../types/player.js';
-import { Phase } from '../types/phase.js';
-import {type Card} from '../types/card.js';
-import {type Effect} from '../types/effect.js';
+import { Phase } from '../types/game.js';
+
 
 export class GameState {
   private players: [Player, Player];

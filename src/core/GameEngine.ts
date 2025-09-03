@@ -5,7 +5,7 @@ import { ChainSystem } from './ChainSystem.js';
 import { CardRepository } from '../data/CardRepository.js';
 import { type Player } from '../types/player.js';
 import { type GameContext } from './GameContext.js';
-import { CardLocation, CardType } from '../types/game.js';
+import { CardLocation, CardType, CardPosition} from '../types/game.js';
 
 
 export class GameEngine {
@@ -54,10 +54,9 @@ export class GameEngine {
   startTurn(): void {
     const phase = this.gameState.getCurrentPhase();
     // 处理抽牌阶段
-    if (phase === 'DRAW') {
+    if (phase === 'DRAW') { // 兼容枚举和字符串
       this.drawPhase();
     }
-    
     // 处理其他阶段...
   }
   
@@ -79,10 +78,10 @@ export class GameEngine {
   // 抽牌
   drawCard(player: Player): void {
     if (player.deck.length > 0) {
-      const card = player.deck.shift()!;
+      const card = player.deck.shift();
+      if (!card) return;
       player.hand.push(card);
       card.location = CardLocation.HAND;
-      
       // 触发抽卡时点
       this.effectSystem.checkTriggerEffects(this.context, 'DRAW_CARD', {
         player: player.id,
@@ -94,7 +93,7 @@ export class GameEngine {
   // 其他游戏操作：召唤、攻击、发动效果等...
   
   // 召唤怪兽
-  summonMonster(cardId: string, position: string): void {
+  summonMonster(cardId: string, position: CardPosition): void {
     const player = this.gameState.getCurrentPlayer();
     const cardIndex = player.hand.findIndex(c => c.id === cardId);
     
@@ -103,32 +102,29 @@ export class GameEngine {
     }
     
     const card = player.hand[cardIndex];
-    
+    if (!card) {
+      throw new Error('Card not found in hand');
+    }
     // 检查召唤条件
     if (card.type !== CardType.MONSTER) {
       throw new Error('Only monsters can be summoned');
     }
-    
     // 从手牌移除
     player.hand.splice(cardIndex, 1);
-    
     // 放置到场上
-    const emptyZoneIndex = player.field.monsterZones.findIndex(zone => zone === null);
+    const emptyZoneIndex = player.field.monsterZones.findIndex(zone => zone === null || zone === undefined);
     if (emptyZoneIndex === -1) {
       throw new Error('No empty monster zones');
     }
-    
     player.field.monsterZones[emptyZoneIndex] = card;
     card.location = CardLocation.MONSTER_ZONE;
     card.position = position;
-    
     // 触发召唤时点
     this.effectSystem.checkTriggerEffects(this.context, 'SUMMON', {
       player: player.id,
       card: card.id,
       position: position
     });
-    
     // 询问连锁
     this.chainSystem.askForChainResponses(this.context);
   }
