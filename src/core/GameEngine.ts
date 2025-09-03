@@ -63,7 +63,11 @@ export class GameEngine {
   // 抽牌阶段
   drawPhase(): void {
     const player = this.gameState.getCurrentPlayer();
-    this.drawCard(player);
+    
+    // 在游戏王中，先手玩家在第一回合不抽牌
+    if (!(this.gameState.getTurnCount() === 1 && this.gameState.getCurrentPlayerIndex() === 0)) {
+      this.drawCard(player);
+    }
     
     // 触发抽牌时点
     this.effectSystem.checkTriggerEffects(this.context, 'DRAW_PHASE', {

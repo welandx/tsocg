@@ -67,5 +67,13 @@ export class GameState {
     this.turnCount++;
   }
   
+  getTurnCount(): number {
+    return this.turnCount;
+  }
+  
+  getCurrentPlayerIndex(): number {
+    return this.currentPlayerIndex;
+  }
+  
   // Other state management methods...
 }
