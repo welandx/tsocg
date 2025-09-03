@@ -1,5 +1,7 @@
 // core/ChainSystem.ts
-import { Player, Card, Effect, GameContext } from '../types';
+import { type Player } from '../types/player.js';
+import {type Card, type Effect} from '../types/card.js';
+import { type GameContext } from './GameContext.js';
 
 export interface ChainLink {
   effect: Effect;
@@ -15,39 +17,39 @@ export class ChainSystem {
     this.chain.push(link);
   }
   
-  // 询问双方是否连锁
+  // Ask both players for chain responses
   async askForChainResponses(ctx: GameContext): Promise<void> {
     let currentPlayer = ctx.currentPlayer;
     let opponent = ctx.opponent;
     
-    // 实际实现中，这里需要与玩家交互（在无UI环境中可能是通过回调）
-    // 简化版：自动处理
+  // In actual implementation, player interaction is needed (in non-UI environments, possibly via callback)
+  // Simplified: auto handling
     const canChain = this.checkChainPossibilities(ctx);
     
     if (canChain) {
-      // 这里应该等待玩家响应
-      // 简化处理：直接解析连锁
+  // Should wait for player responses here
+  // Simplified: directly resolve chain
       this.resolveChain(ctx);
     } else {
       this.resolveChain(ctx);
     }
   }
   
-  // 解析整个连锁
+  // Resolve the entire chain
   resolveChain(ctx: GameContext): void {
     this.resolving = true;
     
-    // 逆序处理连锁
+  // Process the chain in reverse order
     while (this.chain.length > 0) {
       const link = this.chain.pop()!;
-      // 设置当前玩家为效果发动者
+  // Set current player as effect activator
       const originalPlayer = ctx.currentPlayer;
       ctx.currentPlayer = link.player;
       
-      // 解析效果
+  // Resolve effect
       ctx.effectSystem.resolveEffect(link.effect, ctx);
       
-      // 恢复当前玩家
+  // Restore current player
       ctx.currentPlayer = originalPlayer;
     }
     
@@ -55,8 +57,8 @@ export class ChainSystem {
   }
   
   private checkChainPossibilities(ctx: GameContext): boolean {
-    // 检查双方是否有可以连锁的效果
-    // 简化实现
+  // Check if either player can chain effects
+  // Simplified implementation
     return false;
   }
 }

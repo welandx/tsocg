@@ -22,7 +22,7 @@ enum CardLocation {
 
 enum CardPosition {
   FACE_UP_ATTACK = 'FACE_UP_ATTACK',
-  FACE_DOWN_ATTACK = 'FACE_DOWN_ATTACK', // 实际上不存在，但为完整性保留
+  FACE_DOWN_ATTACK = 'FACE_DOWN_ATTACK', // Rarely used, but included for completeness
   FACE_UP_DEFENSE = 'FACE_UP_DEFENSE',
   FACE_DOWN_DEFENSE = 'FACE_DOWN_DEFENSE'
 }

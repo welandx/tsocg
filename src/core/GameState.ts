@@ -1,5 +1,9 @@
 // core/GameState.ts
-import { Phase, Player, Card, Effect } from '../types';
+//import { Phase, Player, Card, Effect } from '../types';
+import {type Player} from '../types/player.js';
+import { Phase } from '../types/phase.js';
+import {type Card} from '../types/card.js';
+import {type Effect} from '../types/effect.js';
 
 export class GameState {
   private players: [Player, Player];
@@ -15,11 +19,20 @@ export class GameState {
   }
   
   getCurrentPlayer(): Player {
-    return this.players[this.currentPlayerIndex];
+    const player = this.players[this.currentPlayerIndex];
+    if (!player) {
+      throw new Error('当前玩家索引无效');
+    }
+    return player;
   }
   
   getOpponentPlayer(): Player {
-    return this.players[this.currentPlayerIndex === 0 ? 1 : 0];
+    const opponentIndex = this.currentPlayerIndex === 0 ? 1 : 0;
+    const player = this.players[opponentIndex];
+    if (!player) {
+      throw new Error('对手玩家索引无效');
+    }
+    return player;
   }
   
   getCurrentPhase(): Phase {
@@ -28,14 +41,23 @@ export class GameState {
   
   setPhase(phase: Phase): void {
     this.currentPhase = phase;
-    // 这里可以触发阶段变更事件
+  // Phase change event can be triggered here
   }
   
   nextPhase(): void {
-    const phases = Object.values(Phase);
+    const phases = Object.values(Phase).filter(
+      (v) => typeof v === 'string' || typeof v === 'number'
+    ) as Phase[];
     const currentIndex = phases.indexOf(this.currentPhase);
-    this.currentPhase = phases[(currentIndex + 1) % phases.length];
-    
+    if (currentIndex === -1) {
+      throw new Error('当前阶段无效');
+    }
+    const nextPhase = phases[(currentIndex + 1) % phases.length];
+    if (nextPhase === undefined) {
+      throw new Error('无法确定下一个阶段');
+    }
+    this.currentPhase = nextPhase;
+
     if (this.currentPhase === Phase.DRAW) {
       this.endTurn();
     }
@@ -46,5 +68,5 @@ export class GameState {
     this.turnCount++;
   }
   
-  // 其他状态管理方法...
+  // Other state management methods...
 }
